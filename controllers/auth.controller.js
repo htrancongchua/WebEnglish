@@ -62,3 +62,77 @@ exports.logout = async (req, res) => {
     await AuthService.logoutUser(req.token, req.user.exp);  
     return res.json({ message: 'Logged out successfully.' });
 }
+
+
+exports.getUsers = async (req, res) => { 
+    var page = req.query.page || 1;
+    var limit = req.query.limit || 10;
+    var query = req.query.query || "";
+
+    var users = await AuthService.findAll(page,limit,query);
+    var total = await AuthService.getTotal();
+
+    return res.status(200).json({
+        results: users.length,
+        total: total,
+        data : users,
+        status : true
+    });
+}
+
+
+exports.getUser = async (req, res) => { 
+
+    var user = await AuthService.findByID(req.params.id);
+
+    return res.status(200).json({
+        data: user,
+        status : true
+    });
+}
+
+
+exports.update = async (req, res) => { 
+    var dateTimeStamp = parseInt(Date.now()/1000);
+
+    const userData = {
+        username: req.body.username,
+        email: req.body.email,
+        birthday:req.body.birthday,
+        active:req.body.active,
+        roleid:req.body.roleid,
+        password: req.body.password,
+        createdat:req.body.createdat,
+        updatedat:dateTimeStamp,
+    }
+    
+    await AuthService.update(userData,req.params.id);
+
+    const user = await AuthService.findByID(req.params.id);
+    
+    return res.json({
+        data: user,
+        message: 'User updated successfully.',
+        status : true
+    });
+}
+
+
+exports.setActive = async (req, res) => { 
+    var dateTimeStamp = parseInt(Date.now()/1000);
+
+    const user = await AuthService.findByID(req.params.id);
+
+    const userData = {
+        ...user,
+        active : !user["active"],
+        updatedat:dateTimeStamp,
+    }
+
+    await AuthService.update(userData,req.params.id);
+    
+    return res.json({
+        message: 'Update trạng thái thành công.',
+        status : true
+    });
+}

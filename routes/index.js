@@ -1,40 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const multer = require("multer");
 
 const AuthController = require('../controllers/auth.controller');
 const CategoryController= require('../controllers/category.controller');
+const TopicController= require('../controllers/topic.controller');
 const ErrorHandler = require('../middleware/error.middleware');
 const AuthGuard = require('../middleware/auth.middleware');
 const authValidate = require('../validatons/auth.validation');
 const categoryValidate = require('../validatons/category.validation');
+const topicValidate = require('../validatons/topic.validation');
 const validate = require('../utils/validator.util'); 
 
 
-// SET STORAGE
-var storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'uploads')
-    },
-    filename: function (req, file, cb) {
-      cb(null, Date.now()+ file.originalname)
-    }
-  })
-   
-var upload = multer({ storage: storage })
-
-router.post('/uploadfile', upload.single('file'), (req, res, next) => {
-    const file = req.file
-    console.log(file)
-    if (!file) {
-        return res.json({
-            message: 'File image is required'
-        });
-    }
-    return res.json({
-        url: __basedir + "/uploads/" + file.filename,
-    });
-});
 
 
 //Authencation
@@ -42,6 +19,10 @@ router.post('/register', validate(authValidate.register), ErrorHandler(AuthContr
 router.post('/login',    validate(authValidate.login),    ErrorHandler(AuthController.login));
 router.get('/user',      AuthGuard,                 ErrorHandler(AuthController.getUser));
 router.get('/logout',    AuthGuard,                 ErrorHandler(AuthController.logout));
+router.get('/user/search', AuthGuard, ErrorHandler(AuthController.getUsers));
+router.get('/user/:id', AuthGuard, ErrorHandler(AuthController.getUser));
+router.put('/user/:id', AuthGuard, ErrorHandler(AuthController.update));
+router.put('/user/active/:id', AuthGuard, ErrorHandler(AuthController.setActive));
 
 
 //Category
@@ -50,6 +31,14 @@ router.put('/category/:id', AuthGuard, validate(categoryValidate.category), Erro
 router.delete('/category/:id', AuthGuard, ErrorHandler(CategoryController.delete));
 router.get('/category/search', AuthGuard, ErrorHandler(CategoryController.getCategories));
 router.get('/category/:id', AuthGuard, ErrorHandler(CategoryController.getCategory));
+
+
+//Topic
+router.post('/topic/create', AuthGuard, validate(topicValidate.topic), ErrorHandler(TopicController.create));
+router.put('/topic/:id', AuthGuard, validate(topicValidate.topic), ErrorHandler(TopicController.update));
+router.delete('/topic/:id', AuthGuard, ErrorHandler(TopicController.delete));
+router.get('/topic/search', AuthGuard, ErrorHandler(TopicController.getTopics));
+router.get('/topic/:id', AuthGuard, ErrorHandler(TopicController.getTopic));
 
 
 router.all('*',  (req, res) => res.status(400).json({ message: 'Bad Request.'}));

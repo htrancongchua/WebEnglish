@@ -13,7 +13,7 @@ module.exports = {
         email: Joi.string().email().required(),
         password: Joi.string().min(8).max(16).required().external(validatePassword),
         roleid:Joi.number().required(),
-        birthday:Joi.string().required(),
+        birthday:Joi.string(),
     }),
     login: Joi.object().keys({
         email: Joi.string().email().required(),

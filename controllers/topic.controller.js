@@ -1,9 +1,9 @@
-const CategoryService = require('../services/category.service');
+const TopicService = require('../services/topic.service');
 
 exports.create = async (req, res) => { 
     var dateTimeStamp = parseInt(Date.now()/1000);
 
-    const categoryData = {
+    const topicData = {
         name: req.body.name,
         image: req.body.image,
         idcreated: global.__idcreated,
@@ -11,10 +11,10 @@ exports.create = async (req, res) => {
         updatedat:dateTimeStamp,
     }
     
-    const category = await CategoryService.createCategory(categoryData);
+    const topic = await TopicService.createTopic(topicData);
     return res.json({
-        data: category,
-        message: 'Category registered successfully.',
+        data: topic,
+        message: 'Topic registered successfully.',
         status : true
     });
 }
@@ -23,7 +23,7 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => { 
     var dateTimeStamp = parseInt(Date.now()/1000);
 
-    const categoryData = {
+    const topicData = {
         name: req.body.name,
         image: req.body.image,
         idcreated: global.__idcreated,
@@ -31,49 +31,47 @@ exports.update = async (req, res) => {
         updatedat:dateTimeStamp,
     }
     
-    await CategoryService.updateCategory(categoryData,req.params.id);
-
-    var category = await CategoryService.findByID(req.params.id);
-
+    await TopicService.updateTopic(topicData,req.params.id);
+    var topic = await TopicService.findByID(req.params.id);
     return res.json({
-        data: category,
-        message: 'Category updated successfully.',
+        data: topic,
+        message: 'Topic updated successfully.',
         status : true
     });
 }
 
 exports.delete = async (req, res) => { 
-    await CategoryService.deleteCategory(req.params.id);
+    await TopicService.deleteTopic(req.params.id);
     return res.json({
-        message: 'Category delete successfully.',
+        message: 'Topic delete successfully.',
         status : true
     });
 }
 
 
-exports.getCategories = async (req, res) => { 
+exports.getTopics = async (req, res) => { 
     var page = req.query.page || 1;
     var limit = req.query.limit || 10;
     var query = req.query.query || "";
 
-    var categories = await CategoryService.findAll(page,limit,query);
-    var total = await CategoryService.getTotal();
+    var topics = await TopicService.findAll(page,limit,query);
+    var total = await TopicService.getTotal();
 
     return res.status(200).json({
-        results: categories.length,
+        results: topics.length,
         total: total,
-        data : categories,
+        data : topics,
         status : true
     });
 }
 
 
-exports.getCategory = async (req, res) => { 
+exports.getTopic = async (req, res) => { 
 
-    var category = await CategoryService.findByID(req.params.id);
+    var topic = await TopicService.findByID(req.params.id);
 
     return res.status(200).json({
-        data: category,
+        data: topic,
         status : true
     });
 }
